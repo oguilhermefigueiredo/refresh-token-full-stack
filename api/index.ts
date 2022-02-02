@@ -1,10 +1,11 @@
+import { Cookies } from '@shared'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { databaseClient } from './database'
 import { getGitHubUser } from './github-adapter'
-import { buildTokens, setTokens } from './token-utils'
-import { createUser, getUserByGitHubId } from './user-service'
+import { buildTokens, clearTokens, refreshTokens, setTokens, verifyRefreshToken } from './token-utils'
+import { createUser, getUserByGitHubId, getUserById } from './user-service'
 
 const app = express()
 
@@ -26,7 +27,19 @@ app.get('/github', async (req,res) => {
   res.redirect(`${process.env.CLIENT_URL}/me`)
 })
 
-app.post('/refresh', async (req,res) => {})
+app.post('/refresh', async (req,res) => {
+  try {
+  const current = verifyRefreshToken(req.cookies[Cookies.RefreshToken])
+  const user = await getUserById(current.userId)
+  if (!user) throw 'User not found'
+
+  const {accessToken, refreshToken} = refreshTokens(current, user.tokenVersion)
+  setTokens(res, accessToken, refreshToken)
+  } catch (error) {
+    clearTokens(res)
+  }
+})
+
 app.post('/logout', (req, res) => {})
 app.post('/logout-all', async (req, res) => {})
 app.get('/me', async (req, res) => {})

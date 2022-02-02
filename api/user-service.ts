@@ -27,3 +27,8 @@ export async function getUserByGitHubId(gitHubUserId: number) {
   const coll = await collection()
   return coll.findOne({gitHubUserId: gitHubUserId.toString()})
 }
+
+export async function getUserById(id: string) {
+  const coll = await collection()
+  return coll.findOne({id})
+}
