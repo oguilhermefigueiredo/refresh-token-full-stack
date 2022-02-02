@@ -17,4 +17,4 @@ services:
 
     environment: 
      MONGO_INITDB_ROOT_USERNAME: admin
-     MONGO_INITDB_ROOT_PASSWORD: ypFO504D6HTC0wYF
+     MONGO_INITDB_ROOT_PASSWORD: my-pass
