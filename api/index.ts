@@ -2,10 +2,11 @@ import { Cookies } from '@shared'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
+import { authMiddleware } from './auth-middleware'
 import { databaseClient } from './database'
 import { getGitHubUser } from './github-adapter'
 import { buildTokens, clearTokens, refreshTokens, setTokens, verifyRefreshToken } from './token-utils'
-import { createUser, getUserByGitHubId, getUserById } from './user-service'
+import { createUser, getUserByGitHubId, getUserById, increaseTokenVersion } from './user-service'
 
 const app = express()
 
@@ -40,9 +41,22 @@ app.post('/refresh', async (req,res) => {
   }
 })
 
-app.post('/logout', (req, res) => {})
-app.post('/logout-all', async (req, res) => {})
-app.get('/me', async (req, res) => {})
+app.post('/logout',  authMiddleware, (req, res) => {
+  clearTokens(res)
+  res.end()
+})
+
+app.post('/logout-all', authMiddleware, async (req, res) => {
+  await increaseTokenVersion(res.locals.token.userId)
+
+  clearTokens(res)
+  res.end()
+})
+
+app.get('/me', authMiddleware, async (req, res) => {
+  const user = await getUserById(res.locals.token.userId)
+  res.json(user)
+})
 
 async function main() {
   await databaseClient.connect()
