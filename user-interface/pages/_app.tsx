@@ -1,12 +1,18 @@
 import 'tailwindcss/tailwind.css'
 
-import type { AppProps } from 'next/app'
 import { Navigation } from '../components/navigation'
+import { UserProvider } from '../contexts/user-context'
+
+import type { AppProps } from 'next/app'
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return <div className="h-screen">
-    <Navigation />
-    <Component {...pageProps} />
-  </div>
+  return (
+    <UserProvider>
+      <div className="h-screen">
+        <Navigation />
+        <Component {...pageProps} />
+      </div>
+    </UserProvider>
+  )
 }
 export default MyApp

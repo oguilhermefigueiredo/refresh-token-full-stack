@@ -1,5 +1,8 @@
 module.exports = {
-  content: [],
+  purge: {
+    enabled: true,
+    content: ["./pages/**/*.tsx", "./components/**/*.tsx"]
+  },
   theme: {
     extend: {},
   },
